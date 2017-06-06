@@ -34,7 +34,7 @@ public class ProductProducer {
             long productPricePerUnit = producedProducts.get(productName).createProductPricePerUnit();
             Offer offer = createdOffers.createOfferAndAdd(productProducerID, productName, productPricePerUnit);
             MqttClientSingleton.getInstance().publish(
-                    "Offers", new MqttMessage(offer.toJSONString().getBytes()));
+                    "Offer", new MqttMessage(offer.toJSONString().getBytes()));
             System.out.println(String.format("INFO : New Offer created " +
                             "(offerID: %s, productProducerID: %s, productName: %s, productPricePerUnit: %s)",
                     offer.getOfferID(), offer.getProductName(), offer.getProductName(), offer.getProductPricePerUnit()));
