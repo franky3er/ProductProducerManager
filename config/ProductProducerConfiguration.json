@@ -1,0 +1,15 @@
+{
+  "productProducerID": "Creamery",
+  "producedProducts": [
+    {
+      "productName": "Milk",
+      "productPricePerUnitMin": 30,
+      "productPricePerUnitMax": 60
+    },
+    {
+      "productName": "Butter",
+      "productPricePerUnitMin": 40,
+      "productPricePerUnitMax": 70
+    }
+  ]
+}
