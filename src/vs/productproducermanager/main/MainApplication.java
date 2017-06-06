@@ -4,12 +4,15 @@ import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.simple.parser.ParseException;
 import vs.productproducermanager.mqtt.MqttClientSingleton;
+import vs.productproducermanager.offer.OfferAgent;
 import vs.productproducermanager.producer.ProductProducer;
 import vs.productproducermanager.producer.ProductProducerFactory;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class MainApplication {
@@ -21,16 +24,21 @@ public class MainApplication {
             "ProductProducerManager.ProductProducer.Configuration.fileSource";
     private final static String PRODUCTPRODUCERMANAGER_MQTT_IP = "ProductProducerManager.MQTT.IP";
     private final static String PRODUCTPRODUCERMANAGER_MQTT_PORT = "ProductProducerManager.MQTT.Port";
+    private final static String PRODUCTPRODUCERMANAGER_OFFERAGENT_SLEEPSECONDS =
+            "ProductProducerManager.OfferAgent.SleepSeconds";
 
     private static String productProducerConfigurationFileSource;
     private static String mqttIP;
     private static String mqttPort;
+    private static long offerAgentSleepMillis;
 
     private static MemoryPersistence persistence;
     private static MqttClientSingleton client;
     private static MqttConnectOptions connOpts;
 
     private static ProductProducer productProducer;
+
+    private final static List<Thread> threads = new ArrayList<>();
 
     public static void main(String [] args) {
         try {
@@ -58,11 +66,14 @@ public class MainApplication {
                 properties.getProperty(PRODUCTPRODUCERMANAGER_PRODUCTPRODUCER_CONFIGURATION_FILESOURCE);
         mqttIP = properties.getProperty(PRODUCTPRODUCERMANAGER_MQTT_IP);
         mqttPort = properties.getProperty(PRODUCTPRODUCERMANAGER_MQTT_PORT);
+        offerAgentSleepMillis = Long.parseLong(
+                properties.getProperty(PRODUCTPRODUCERMANAGER_OFFERAGENT_SLEEPSECONDS)) * 1000;
     }
 
     private static void initialize() throws MqttException, IOException, ParseException {
         initializeProductProducer();
         initializeMqttClient();
+        initializeOfferAgent();
     }
 
     private static void initializeProductProducer() throws IOException, ParseException {
@@ -100,6 +111,13 @@ public class MainApplication {
         System.out.println(String.format("INFO : Connected to MQTTServer (IP: %s, Port: %s)", mqttIP, mqttPort));
     }
 
+    private static void initializeOfferAgent() {
+        threads.add(new Thread(new OfferAgent(productProducer, offerAgentSleepMillis)));
+    }
+
     private static void run() {
+        for(Thread thread : threads) {
+            thread.start();
+        }
     }
 }

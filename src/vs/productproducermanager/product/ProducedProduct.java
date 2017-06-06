@@ -1,5 +1,7 @@
 package vs.productproducermanager.product;
 
+import java.util.Random;
+
 public class ProducedProduct {
     private String productName;
     private long productPricePerUnitMin;
@@ -21,5 +23,11 @@ public class ProducedProduct {
 
     public long getProductPricePerUnitMax() {
         return productPricePerUnitMax;
+    }
+
+    public long createProductPricePerUnit() {
+        Random random = new Random();
+        return productPricePerUnitMin +
+                (long)(random.nextDouble()*(productPricePerUnitMax - productPricePerUnitMin));
     }
 }
