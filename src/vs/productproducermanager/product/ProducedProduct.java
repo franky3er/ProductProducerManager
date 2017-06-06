@@ -27,7 +27,7 @@ public class ProducedProduct {
 
     public long createProductPricePerUnit() {
         Random random = new Random();
-        return (random.nextLong()%(productPricePerUnitMax - productPricePerUnitMin))
-                + productPricePerUnitMin;
+        return productPricePerUnitMin +
+                (long)(random.nextDouble()*(productPricePerUnitMax - productPricePerUnitMin));
     }
 }

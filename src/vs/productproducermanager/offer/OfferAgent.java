@@ -7,15 +7,16 @@ import static java.lang.Thread.sleep;
 
 public class OfferAgent implements Runnable {
     private ProductProducer productProducer;
-    private int sleepMillis;
+    private long sleepMillis;
 
-    public OfferAgent(ProductProducer productProducer, int sleepMillis) {
+    public OfferAgent(ProductProducer productProducer, long sleepMillis) {
         this.productProducer = productProducer;
         this.sleepMillis = sleepMillis;
     }
 
     @Override
     public void run() {
+        System.out.println("INFO : Offer Agent running");
         while (true) {
             createOffers();
             try {
