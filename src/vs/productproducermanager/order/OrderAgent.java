@@ -3,6 +3,7 @@ package vs.productproducermanager.order;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.simple.parser.ParseException;
 import vs.productproducermanager.delivery.exception.DeliveryException;
+import vs.productproducermanager.offer.exception.OfferException;
 import vs.productproducermanager.order.exception.OrderException;
 import vs.productproducermanager.producer.ProductProducer;
 
@@ -29,16 +30,19 @@ public class OrderAgent implements Runnable {
             } catch (DeliveryException e) {
                 System.err.println("WARNING : Delivery failed");
                 e.printStackTrace();
+            } catch (OfferException e) {
+                System.err.println("WARNING : Create Offer from Order failed");
+                e.printStackTrace();
             }
         }
     }
 
-    private void handleOrderTask() throws OrderException, DeliveryException {
+    private void handleOrderTask() throws OrderException, DeliveryException, OfferException {
         Order order = receiveOrder();
         productProducer.handleOrder(order);
     }
 
-    private Order receiveOrder() throws OrderException {
+    private Order receiveOrder() throws OrderException, OfferException {
         try {
             MqttMessage orderTask = orderTasks.take();
             Order order = OrderFactory.create(orderTask.toString());
