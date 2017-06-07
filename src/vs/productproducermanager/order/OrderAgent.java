@@ -12,8 +12,14 @@ public class OrderAgent implements Runnable {
     private ProductProducer productProducer;
     private BlockingQueue<MqttMessage> orderTasks;
 
+    public OrderAgent(ProductProducer productProducer, BlockingQueue<MqttMessage> orderTasks) {
+        this.productProducer = productProducer;
+        this.orderTasks = orderTasks;
+    }
+
     @Override
     public void run() {
+        System.out.println("INFO : Order Agent running");
         while(true) {
             try {
                 handleOrderTask();

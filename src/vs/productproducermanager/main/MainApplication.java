@@ -5,6 +5,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.simple.parser.ParseException;
 import vs.productproducermanager.mqtt.MqttClientSingleton;
 import vs.productproducermanager.offer.OfferAgent;
+import vs.productproducermanager.order.OrderAgent;
 import vs.productproducermanager.producer.ProductProducer;
 import vs.productproducermanager.producer.ProductProducerFactory;
 import vs.productproducermanager.request.RequestAgent;
@@ -30,12 +31,14 @@ public class MainApplication {
     private final static String PRODUCTPRODUCERMANAGER_OFFERAGENT_SLEEPSECONDS =
             "ProductProducerManager.OfferAgent.SleepSeconds";
     private final static String PRODUCTPRODUCERMANAGER_REQUESTAGENT_QUANTITY = "ProductProducerManager.RequestAgent.Quantity";
+    private final static String PRODUCTPRODUCERMANAGER_ORDERAGENT_QUANTITY = "ProductProducerManager.OrderAgent.Quantity";
 
     private static String productProducerConfigurationFileSource;
     private static String mqttIP;
     private static String mqttPort;
     private static long offerAgentSleepMillis;
     private static int requestAgentQuantity;
+    private static int orderAgentQuantity;
 
     private static MemoryPersistence persistence;
     private static MqttClientSingleton client;
@@ -44,6 +47,8 @@ public class MainApplication {
     private static ProductProducer productProducer;
 
     private final static BlockingQueue<MqttMessage> requestTasks = new ArrayBlockingQueue<MqttMessage>(1024);
+    private final static BlockingQueue<MqttMessage> orderTasks = new ArrayBlockingQueue<MqttMessage>(1024);
+
 
     private final static List<Thread> threads = new ArrayList<>();
 
@@ -77,6 +82,8 @@ public class MainApplication {
                 properties.getProperty(PRODUCTPRODUCERMANAGER_OFFERAGENT_SLEEPSECONDS)) * 1000;
         requestAgentQuantity = Integer.parseInt(
                 properties.getProperty(PRODUCTPRODUCERMANAGER_REQUESTAGENT_QUANTITY));
+        orderAgentQuantity = Integer.parseInt(
+                properties.getProperty(PRODUCTPRODUCERMANAGER_ORDERAGENT_QUANTITY));
     }
 
     private static void initialize() throws MqttException, IOException, ParseException {
@@ -84,6 +91,7 @@ public class MainApplication {
         initializeMqttClient();
         initializeOfferAgent();
         initializeRequestAgents();
+        initializeOrderAgents();
     }
 
     private static void initializeProductProducer() throws IOException, ParseException {
@@ -113,6 +121,9 @@ public class MainApplication {
                     case "Request": {
                         requestTasks.put(mqttMessage);
                     } break;
+                    case "Order": {
+                        orderTasks.put(mqttMessage);
+                    } break;
                 }
             }
 
@@ -132,6 +143,12 @@ public class MainApplication {
     private static void initializeRequestAgents() {
         for(int i = 0; i < requestAgentQuantity; i++) {
             threads.add(new Thread(new RequestAgent(productProducer, requestTasks)));
+        }
+    }
+
+    private static void initializeOrderAgents() {
+        for(int i = 0; i < orderAgentQuantity; i++) {
+            threads.add(new Thread(new OrderAgent(productProducer, orderTasks)));
         }
     }
 
