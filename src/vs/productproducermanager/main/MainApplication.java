@@ -136,6 +136,9 @@ public class MainApplication {
 
         client.connect();
         System.out.println(String.format("INFO : Connected to MQTTServer (IP: %s, Port: %s)", mqttIP, mqttPort));
+
+        String[] topics = {"Request", "Order"};
+        client.subscribe(topics);
     }
 
     private static void initializeOfferAgent() {
