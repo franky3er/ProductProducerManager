@@ -19,7 +19,7 @@ public class CreatedOffers {
         return offer;
     }
 
-    public synchronized boolean existsOffer(int offerID) {
+    public synchronized boolean containsOffer(int offerID) {
         return offers.containsKey(offerID);
     }
 
