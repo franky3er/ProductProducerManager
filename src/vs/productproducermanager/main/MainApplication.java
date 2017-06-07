@@ -102,8 +102,8 @@ public class MainApplication {
 
     private static void initializeMqttClient() throws MqttException {
         persistence = new MemoryPersistence();
-        MqttClientSingleton.initialize(String.format("tcp://%s:%s", mqttIP, mqttPort), "bla",
-                persistence);
+        MqttClientSingleton.initialize(String.format("tcp://%s:%s", mqttIP, mqttPort),
+                productProducer.getProductProducerID(), persistence);
         client = MqttClientSingleton.getInstance();
         connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
@@ -117,6 +117,8 @@ public class MainApplication {
 
             @Override
             public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+                System.out.println(String.format("INFO : Message Arrived (Topic: %s, Message: %s)",
+                        topic, mqttMessage.toString()));
                 switch(topic) {
                     case "Request": {
                         requestTasks.put(mqttMessage);
